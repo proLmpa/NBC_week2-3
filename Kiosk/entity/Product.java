@@ -3,16 +3,21 @@ package Kiosk.entity;
 public class Product extends Menu{
     private String name;
     private String description;
-    private String price;
+    private float price;
+    private float option;
 
-    Product() {
-        super();
-        price = "W 6.9";
-    }
-    public Product(String name, String description, String price) {
+    public Product(String name, String description, float price) {
         this.name = name;
         this.description = description;
         this.price = price;
+        option = 0f;
+    }
+
+    public Product(String name, String description, float price, float option){
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.option = option;
     }
 
     @Override
@@ -23,5 +28,7 @@ public class Product extends Menu{
     @Override
     public String getDesc() {return description; }
 
-    public String getPrice() { return price; }
+    public float getPrice() { return price; }
+
+    public float getOption() { return option; }
 }

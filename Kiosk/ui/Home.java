@@ -2,9 +2,9 @@ package Kiosk.ui;
 
 import Kiosk.entity.*;
 
+import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Scanner;
 
 public class Home {
     private Scanner scanner;
@@ -27,6 +27,8 @@ public class Home {
             choice = selectMenu();
             switch(choice) {
                 case 0:
+                    order.printHistory();
+                    selectMenu();
                     break;
                 case 1: case 2: case 3: case 4:
                     String menuName = menuList.get(choice-1).getName();
@@ -88,7 +90,7 @@ public class Home {
         ArrayList<Product> productList = productMap.get(menuName);
         for(int i = 0; i < productList.size(); i++){
             Product product = productList.get(i);
-            sb.append(String.format("%d. %-17s | %5s | %s\n", (i+1), product.getName(), product.getPrice(), product.getDesc()));
+            sb.append(String.format("%d. %-17s | W %.1f | %s\n", (i+1), product.getName(), product.getPrice(), product.getDesc()));
         }
         sb.append("--------------------------------------------\n");
         System.out.print(sb);
@@ -102,10 +104,38 @@ public class Home {
         }
 
         Product chosen = productList.get(choice-1);
+        if(chosen.getOption() > 0){
+            String option = chooseOption(menuName, chosen);
+            if(selectMenu() == 2)
+                chosen = new Product(chosen.getName() + option,  chosen.getDesc(), chosen.getOption());
+        }
+
+        printOrder(chosen);
+    }
+
+    public String chooseOption(String menuName, Product chosen) {
+        String option = "";
 
         StringBuilder sb = new StringBuilder();
         sb.append("--------------------------------------------\n");
-        sb.append(String.format("\"%-17s | %5s | %s\"\n", chosen.getName(), chosen.getPrice(), chosen.getDesc()));
+        sb.append(String.format("\"%-17s | W %.1f | %s\"\n", chosen.getName(), chosen.getPrice(), chosen.getDesc()));
+        sb.append("위 메뉴의 어떤 옵션으로 추가하시겠습니까?\n");
+        if(menuName.equals("Burgers")){
+            sb.append(String.format("1. Single(W %.1f) \t\t 2. Double(W %.1f)\n", chosen.getPrice(), chosen.getOption()));
+            option = "(Double)";
+        } else {
+            sb.append(String.format("1. Regular(W %.1f) \t\t 2. Large(W %.1f)\n", chosen.getPrice(), chosen.getOption()));
+            option = "(Large)";
+        }
+        sb.append("--------------------------------------------\n");
+        System.out.print(sb);
+        return option;
+    }
+
+    public void printOrder(Product chosen) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("--------------------------------------------\n");
+        sb.append(String.format("\"%-17s | W %.1f | %s\"\n", chosen.getName(), chosen.getPrice(), chosen.getDesc()));
         sb.append("위 메뉴를 장바구니에 추가하시겠습니까?\n");
         sb.append("1. 확인 \t\t 2. 취소\n");
         sb.append("--------------------------------------------\n");

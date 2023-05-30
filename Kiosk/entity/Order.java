@@ -2,21 +2,23 @@ package Kiosk.entity;
 
 import java.util.*;
 public class Order {
-    private int count;
-    private int historyCount;
     private ArrayList<Product> orders;  // 주문서
-    private Map<Integer, ArrayList<Product>> history; // 주문 이력
+    private Map<String, Integer> productCount; // 상품 개수
+    private Map<String, Sold> history; // 주문 이력
+    private int orderNum; // 대기 번호
 
     public Order(){
-        count = 0; historyCount = 0;
         orders = new ArrayList<>();
+        productCount = new HashMap<>();
         history = new HashMap<>();
+        orderNum = 0;
     }
 
     // 상품 장바구니 추가
     public void addOrder(Product product){
-        orders.add(product);
-        count++;
+        if(!productCount.containsKey(product.getName())){ orders.add(product); }
+
+        productCount.put(product.getName(), productCount.getOrDefault(product.getName(), 0) + 1);
     }
 
     // 장바구니 출력
@@ -27,15 +29,17 @@ public class Order {
         sb.append("\n[ Orders ]\n");
 
         float total = 0f;
-        for(int i = 0; i < count; i++){
+        for(int i = 0; i < orders.size(); i++){
             Product product = orders.get(i);
-            float price = Float.parseFloat(product.getPrice().split(" ")[1]);
-            sb.append(String.format("%d. %-17s | %5s | %s\n", (i+1), product.getName(), product.getPrice(), product.getDesc()));
-            total += price;
+            int pc = productCount.get(product.getName());
+            float price = product.getPrice();
+
+            sb.append(String.format("%d. %-17s | W %.1f | %d개 | %s\n", (i+1), product.getName(), price, pc, product.getDesc()));
+            total += (price * pc);
         }
 
         sb.append("\n[ Total ]\n");
-        sb.append("W " + total + "\n");
+        sb.append(String.format("W  %.1f\n", total));
         sb.append("\n1. 주문 \t\t 2. 메뉴판\n");
         sb.append("--------------------------------------------\n");
         System.out.print(sb);
@@ -44,15 +48,15 @@ public class Order {
     // 주문 완료 & 장바구니 초기화
     public void printComplete() {
         // 주문 이력에 완료된 주문을 넣고, 주문 객체를 초기화.
-        history.put(historyCount++, orders);
-        count = 0;
+        updateHistory(orders, productCount);
         orders = new ArrayList<>();
+        productCount = new HashMap<>();
 
         // 주문 완료 메시지 출력
         StringBuilder sb = new StringBuilder();
         sb.append("--------------------------------------------\n");
         sb.append("주문이 완료되었습니다!\n\n");
-        sb.append("대기번호는 [ " + historyCount + " ] 번 입니다.\n");
+        sb.append("대기번호는 [ " + ++orderNum + " ] 번 입니다.\n");
         sb.append("3초후 메뉴판으로 돌아갑니다.\n");
         sb.append("--------------------------------------------\n");
         System.out.print(sb);
@@ -63,6 +67,43 @@ public class Order {
         } catch(InterruptedException e){
             e.printStackTrace();
         }
+    }
+
+    // 주문 이력(history) 최신화
+    public void updateHistory(ArrayList<Product> orders, Map<String, Integer> productCount) {
+        for(int i = 0; i < orders.size(); i++){
+            Product product = orders.get(i);
+            String productName = product.getName();
+            float productPrice = product.getPrice();
+            int pc = productCount.get(product.getName());
+
+            if(!history.containsKey(productName)){
+                history.put(productName, new Sold(productPrice, pc));
+            } else {
+                Sold sold = history.get(productName);
+                sold.updateSaledCount(pc);
+            }
+        }
+
+    }
+
+    // 주문 이력(history)과 총 판매액 출력
+    public void printHistory() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("--------------------------------------------\n");
+        sb.append("[ 총 판매상품 목록 및 판매금액 현황 ]\n\n");
+
+        float totalSale = 0f;
+        for(String key : history.keySet()){
+            Sold sold = history.get(key);
+            sb.append(String.format(" - %-20s | W %.1f | %d개\n", key, sold.getProductPrice(), sold.getSaledCount()));
+            totalSale += (sold.getProductPrice() * sold.getSaledCount());
+        }
+
+        sb.append(String.format("\n현재까지 총 판매된 금액은 [ W %.1f ] 입니다.\n", totalSale));
+        sb.append("1. 돌아가기\n");
+        sb.append("--------------------------------------------\n");
+        System.out.print(sb);
     }
 
     // 취소 확인 메시지 출력
@@ -78,7 +119,7 @@ public class Order {
     // 주문 취소 (장바구니 초기화)
     public void cancelOrders() {
         orders = new ArrayList<>();
-        count = 0;
+        productCount = new HashMap<>();
         System.out.println("진행하던 주문이 취소되었습니다.");
     }
 }
