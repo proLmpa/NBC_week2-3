@@ -31,7 +31,7 @@ public class Order {
         float total = 0f;
         for(int i = 0; i < orders.size(); i++){
             Product product = orders.get(i);
-            int pc = productCount.get(product.getName());
+            int pc = productCount.get(product);
             float price = product.getPrice();
 
             sb.append(String.format("%d. %-17s | W %.1f | %d개 | %s\n", (i+1), product.getName(), price, pc, product.getDesc()));
