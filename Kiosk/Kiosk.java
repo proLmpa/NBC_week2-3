@@ -20,9 +20,9 @@ public class Kiosk {
         home.show();
     }
 
+    // 메뉴 카테고리 초기화
     private ArrayList<Menu> initMenu(){
         ArrayList<Menu> menuList = new ArrayList<>();
-        // 메뉴 카테고리 초기화
         menuList.add(new Menu("Burgers", "항생제와 호르몬제를 사용하지 않은 100% 앵거스 비프 통살을 다져 만든 패티와 쫄깃한 식감의 포테이토 번을 사용한 버거"));
         menuList.add(new Menu("Flat-Top Dogs", "참나무 칩으로 훈연한 소시지와 포테이토 번을 사용한 핫 도그"));
         menuList.add(new Menu("Frozen Custard", "매일 매장에서 신선하게 직접 만드는 부드럽고 진한 맛의 쫀득한 아이스크림"));
@@ -30,9 +30,9 @@ public class Kiosk {
         return menuList;
     }
 
+    // 각 메뉴별 상품 초기화
     private Map<String, ArrayList<Product>> initProduct(ArrayList<Menu> menuList) {
         Map<String, ArrayList<Product>> productMap = new HashMap<>();
-        // 각 메뉴별 상품 초기화
         ArrayList<Product> productList = new ArrayList<>();
         productList.add(new Product("ShackBurger", "토마토, 양상추, 쉑소스가 토핑된 치즈버거", 6.9f, 10.9f));
         productList.add(new Product("SmokeShack", "애플 우드 칩으로 훈연한 짭짤한 베이컨, 매콤한 체리 페퍼에 쉑소스가 토핑된 치즈 버거", 8.9f, 12.9f));

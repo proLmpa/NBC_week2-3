@@ -51,10 +51,10 @@ public class Home {
                     System.out.println("입력한 번호에 해당하는 옵션이 없습니다.");
                     break;
             }
-
         }
     }
 
+    // 메뉴판 출력
     public void printMenu(){
         StringBuilder sb = new StringBuilder();
         sb.append("--------------------------------------------\n");
@@ -75,11 +75,13 @@ public class Home {
         System.out.print(sb);
     }
 
+    // 메뉴 번호 & 상품 번호 선택
     public int selectMenu() {
         System.out.print("번호를 선택해주세요 : ");
         return scanner.nextInt();
     }
 
+    // 상품 메뉴판 출력
     public void printProductMenu(String menuName){
         StringBuilder sb = new StringBuilder();
         sb.append("--------------------------------------------\n");
@@ -96,6 +98,7 @@ public class Home {
         System.out.print(sb);
     }
 
+    // 상품 선택
     public void selectProduct(String menuName) {
         ArrayList<Product> productList = productMap.get(menuName);
         int choice = 0;
@@ -113,6 +116,7 @@ public class Home {
         printOrder(chosen);
     }
 
+    // 옵션 선택
     public String chooseOption(String menuName, Product chosen) {
         String option = "";
 
@@ -132,6 +136,7 @@ public class Home {
         return option;
     }
 
+    // 장바구니에 추가
     public void printOrder(Product chosen) {
         StringBuilder sb = new StringBuilder();
         sb.append("--------------------------------------------\n");

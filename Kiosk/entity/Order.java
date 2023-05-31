@@ -3,7 +3,7 @@ package Kiosk.entity;
 import java.util.*;
 public class Order {
     private ArrayList<Product> orders;  // 주문서
-    private Map<String, Integer> productCount; // 상품 개수
+    private Map<Product, Integer> productCount; // 상품 개수
     private Map<String, Sold> history; // 주문 이력
     private int orderNum; // 대기 번호
 
@@ -16,9 +16,9 @@ public class Order {
 
     // 상품 장바구니 추가
     public void addOrder(Product product){
-        if(!productCount.containsKey(product.getName())){ orders.add(product); }
+        if(!productCount.containsKey(product)){ orders.add(product); }
 
-        productCount.put(product.getName(), productCount.getOrDefault(product.getName(), 0) + 1);
+        productCount.put(product, productCount.getOrDefault(product, 0) + 1);
     }
 
     // 장바구니 출력
@@ -70,12 +70,12 @@ public class Order {
     }
 
     // 주문 이력(history) 최신화
-    public void updateHistory(ArrayList<Product> orders, Map<String, Integer> productCount) {
+    public void updateHistory(ArrayList<Product> orders, Map<Product, Integer> productCount) {
         for(int i = 0; i < orders.size(); i++){
             Product product = orders.get(i);
             String productName = product.getName();
             float productPrice = product.getPrice();
-            int pc = productCount.get(product.getName());
+            int pc = productCount.get(product);
 
             if(!history.containsKey(productName)){
                 history.put(productName, new Sold(productPrice, pc));
