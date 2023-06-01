@@ -14,3 +14,8 @@
 # version.2_1
 * modified points
  - Kiosk, Menu, Order class: comments added
+
+# version.2_2
+* modified points
+ - Kiosk : 'productMap' field's datatype became Map<Menu, ArrayList<Product>>
+ - Product: use 'super()' to inherit Menu's fields & methods

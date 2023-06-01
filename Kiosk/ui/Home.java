@@ -2,6 +2,7 @@ package Kiosk.ui;
 
 import Kiosk.entity.*;
 
+import java.util.HashMap;
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.Map;
@@ -9,10 +10,10 @@ import java.util.Map;
 public class Home {
     private Scanner scanner;
     private ArrayList<Menu> menuList;
-    private Map<String, ArrayList<Product>> productMap;
+    private Map<Menu, ArrayList<Product>> productMap;
     private Order order;
 
-    public Home(ArrayList<Menu> menuList, Map<String, ArrayList<Product>> productMap){
+    public Home(ArrayList<Menu> menuList, Map<Menu, ArrayList<Product>> productMap){
         this.scanner = new Scanner(System.in);
         this.menuList = menuList;
         this.productMap = productMap;
@@ -24,27 +25,27 @@ public class Home {
 
         while(true){
             printMenu();
-            choice = selectMenu();
+            choice = selectNum();
             switch(choice) {
                 case 0:
                     order.printHistory();
-                    selectMenu();
+                    selectNum();
                     break;
                 case 1: case 2: case 3: case 4:
-                    String menuName = menuList.get(choice-1).getName();
-                    printProductMenu(menuName);
-                    selectProduct(menuName);
+                    Menu menu = menuList.get(choice-1);
+                    printProductMenu(menu);
+                    selectProduct(menu);
                     break;
                 case 5:
                     order.printOrders();
-                    if(selectMenu() == 1){
-                        order.printComplete();
+                    if(selectNum() == 1){
+                        printComplete();
                     }
                     break;
                 case 6:
-                    order.cancelMessage();
-                    if(selectMenu() == 1){
-                        order.cancelOrders();
+                    cancelMessage();
+                    if(selectNum() == 1){
+                        printCancel();
                     }
                     break;
                 default:
@@ -76,20 +77,20 @@ public class Home {
     }
 
     // 메뉴 번호 & 상품 번호 선택
-    public int selectMenu() {
+    public int selectNum() {
         System.out.print("번호를 선택해주세요 : ");
         return scanner.nextInt();
     }
 
     // 상품 메뉴판 출력
-    public void printProductMenu(String menuName){
+    public void printProductMenu(Menu menu){
         StringBuilder sb = new StringBuilder();
         sb.append("--------------------------------------------\n");
         sb.append("\"SHAKESHACK BURGER 에 오신 걸 환영합니다.\"\n");
         sb.append("아래 상품메뉴판을 보시고 메뉴를 골라 입력해주세요.\n\n");
 
-        sb.append("[ " + menuName + " MENU ]\n");
-        ArrayList<Product> productList = productMap.get(menuName);
+        sb.append("[ " + menu.getName() + " MENU ]\n");
+        ArrayList<Product> productList = productMap.get(menu);
         for(int i = 0; i < productList.size(); i++){
             Product product = productList.get(i);
             sb.append(String.format("%d. %-17s | W %.1f | %s\n", (i+1), product.getName(), product.getPrice(), product.getDesc()));
@@ -99,17 +100,17 @@ public class Home {
     }
 
     // 상품 선택
-    public void selectProduct(String menuName) {
-        ArrayList<Product> productList = productMap.get(menuName);
+    public void selectProduct(Menu menu) {
+        ArrayList<Product> productList = productMap.get(menu);
         int choice = 0;
-        while((choice = selectMenu()) > productList.size()){
+        while((choice = selectNum()) > productList.size()){
             System.out.println("입력한 번호에 해당하는 상품이 없습니다.");
         }
 
         Product chosen = productList.get(choice-1);
         if(chosen.getOption() > 0){
-            String option = chooseOption(menuName, chosen);
-            if(selectMenu() == 2)
+            String option = chooseOption(menu.getName(), chosen);
+            if(selectNum() == 2)
                 chosen = new Product(chosen.getName() + option,  chosen.getDesc(), chosen.getOption());
         }
 
@@ -146,9 +147,48 @@ public class Home {
         sb.append("--------------------------------------------\n");
         System.out.print(sb);
 
-        if(selectMenu() == 1){
+        if(selectNum() == 1){
             order.addOrder(chosen);
             System.out.println(chosen.getName() + " 가 장바구니에 추가되었습니다.\n");
         }
+    }
+
+    // 주문 완료
+    public void printComplete() {
+        // 주문 이력에 완료된 주문을 넣고, 주문 객체를 초기화.
+        order.updateHistory();
+        order.initOrder();
+
+        // 주문 완료 메시지 출력
+        StringBuilder sb = new StringBuilder();
+        sb.append("--------------------------------------------\n");
+        sb.append("주문이 완료되었습니다!\n\n");
+        sb.append("대기번호는 [ " + order.increaseOrderNum() + " ] 번 입니다.\n");
+        sb.append("3초후 메뉴판으로 돌아갑니다.\n");
+        sb.append("--------------------------------------------\n");
+        System.out.print(sb);
+
+        // 3초 기다리기 (sleep)
+        try{
+            Thread.sleep(3000);
+        } catch(InterruptedException e){
+            e.printStackTrace();
+        }
+    }
+
+    // 취소 확인 메시지 출력
+    public void cancelMessage() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("------------------------------------\n");
+        sb.append("진행하던 주문을 취소하시겠습니까?\n");
+        sb.append("1. 확인 \t\t 2. 취소\n");
+        sb.append("------------------------------------\n");
+        System.out.print(sb);
+    }
+
+    // 주문 취소 (장바구니 초기화)
+    public void printCancel() {
+        order.initOrder();
+        System.out.println("진행하던 주문이 취소되었습니다.");
     }
 }
